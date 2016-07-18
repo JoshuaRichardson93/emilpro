@@ -82,6 +82,8 @@ private slots:
 
     void on_locationLineEdit_returnPressed();
 
+	void on_dataViewHexEdit_positionChanged(qint64 offset);
+
 private:
 	typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
 	typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
@@ -169,6 +171,13 @@ private:
 	QHexEdit *m_dataViewHexEdit{nullptr};
 	QHexEditData *m_dataViewData{nullptr};
 	QHexEditDataWriter *m_dataViewDataWriter{nullptr};
+
+	QGroupBox *m_dataViewTypeGroup{nullptr};
+	QGridLayout *m_dataViewTypeGroupLayout{nullptr};
+	QLabel *m_dataViewTypeInt8{nullptr};
+	QLabel *m_dataViewTypeInt16{nullptr};
+	QLabel *m_dataViewTypeInt32{nullptr};
+	QLabel *m_dataViewTypeInt64{nullptr};
 
 	uint64_t m_dataViewStart{0};
 	uint64_t m_dataViewEnd{0};

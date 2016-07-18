@@ -414,6 +414,35 @@ void MainWindow::on_locationLineEdit_returnPressed()
 	}
 }
 
+void MainWindow::on_dataViewHexEdit_positionChanged(qint64 offset)
+{
+    if (offset >= 0) {
+        QHexEditDataReader reader(m_dataViewData);
+
+        qint8 hexViewInt8 = reader.read(offset, 1)[0];
+        m_dataViewTypeInt8->setText(
+                    "Int8: " +
+                    QString::number(hexViewInt8)
+                    );
+
+        m_dataViewTypeInt16->setText(
+                    "Int16: " +
+                    QString::number(reader.readInt16(offset))
+                    );
+
+        m_dataViewTypeInt32->setText(
+                    "Int32: " +
+                    QString::number(reader.readInt32(offset))
+                    );
+
+        m_dataViewTypeInt64->setText(
+                    "Int64: " +
+                    QString::number(reader.readInt64(offset))
+                    );
+
+    }
+}
+
 void MainWindow::on_referencesTableView_activated(const QModelIndex &index)
 {
 	int row = index.row();
@@ -649,13 +678,43 @@ void MainWindow::setupDataView()
 
 	m_dataViewHexEdit = new QHexEdit();
 	m_dataViewHexEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	m_dataViewHexEdit->setMinimumWidth(1024);
+	m_dataViewHexEdit->setMinimumWidth(512);
 	m_dataViewHexEdit->setData(m_dataViewData);
-	m_ui->gridLayoutHexView->addWidget(m_dataViewHexEdit);
+	m_dataViewHexEdit->setObjectName("dataViewHexEdit");
+
+	// Show what the currently select segment would be re data types
+	m_dataViewTypeGroup = new QGroupBox();
+	m_dataViewTypeGroup->setTitle("Data Types");
+	m_dataViewTypeGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	m_dataViewTypeGroup->setMinimumWidth(512);
+
+	m_dataViewTypeGroupLayout = new QGridLayout();
+	m_dataViewTypeGroup->setLayout(m_dataViewTypeGroupLayout);
+
+	m_dataViewTypeInt8 = new QLabel();
+	m_dataViewTypeInt16 = new QLabel();
+	m_dataViewTypeInt32 = new QLabel();
+	m_dataViewTypeInt64 = new QLabel();
+
+	m_dataViewTypeInt8->setText(QStringLiteral("Int8: "));
+	m_dataViewTypeInt16->setText(QStringLiteral("Int16: "));
+	m_dataViewTypeInt32->setText(QStringLiteral("Int32: "));
+	m_dataViewTypeInt64->setText(QStringLiteral("Int64: "));
+
+	m_dataViewTypeGroupLayout->addWidget(m_dataViewTypeInt8, 0, 0);
+	m_dataViewTypeGroupLayout->addWidget(m_dataViewTypeInt16, 1, 0);
+	m_dataViewTypeGroupLayout->addWidget(m_dataViewTypeInt32, 2, 0);
+	m_dataViewTypeGroupLayout->addWidget(m_dataViewTypeInt64, 3, 0);
+
+	m_ui->gridLayoutHexView->addWidget(m_dataViewHexEdit, 0, 0);
+	m_ui->gridLayoutHexView->addWidget(m_dataViewTypeGroup, 0, 1);
 
 	m_dataViewHexEdit->setFont(font);
+	m_dataViewTypeGroup->setFont(font);
 
 	m_dataViewDataWriter = new QHexEditDataWriter(m_dataViewData);
+
+	QHexEdit::connect(m_dataViewHexEdit, SIGNAL(positionChanged(qint64)), this, SLOT(on_dataViewHexEdit_positionChanged(qint64)));
 }
 
 void MainWindow::setupInfoBox()
